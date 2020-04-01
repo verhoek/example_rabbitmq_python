@@ -1,0 +1,35 @@
+version: '3'
+
+services:  
+  rabbitmq:
+    # default credentials are guest/guest
+    image: rabbitmq:3.8.3-management
+    ports:
+      # The standard AMQP protocol port
+      - '5672:5672'
+      # HTTP management UI
+      - '15672:15672'
+
+    networks:
+      - network
+
+  consumer:
+    build: consumer
+    environment:
+      AMQP_URL: 'amqp://rabbitmq?connection_attempts=5&retry_delay=5'
+    depends_on: 
+      - rabbitmq
+    networks:
+      - network
+
+  publisher:
+    build: publisher
+    environment:
+      AMQP_URL: 'amqp://rabbitmq?connection_attempts=5&retry_delay=5'
+    depends_on: 
+      - rabbitmq
+    networks:
+      - network
+
+networks:
+  network: {}
